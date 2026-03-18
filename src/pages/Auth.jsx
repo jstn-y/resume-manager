@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { supabase } from "@/lib/supabase";
-import { Form } from "react-router-dom";
 import InputField from "@/components/InputField";
 
 export default function Auth() {
@@ -12,12 +11,6 @@ export default function Auth() {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
     const [message, setMessage] = useState(null);
-
-    const FormLabel = ({ children }) => (
-        <label className="text-[#aaa] text-xs font-sans uppercase tracking-wide">
-        {children}
-        </label>
-    );
 
     // Google OAuth
     const handleGoogleSignIn = async () => {
@@ -59,7 +52,7 @@ export default function Auth() {
         <div className="bg-[#1a1a1a] border border-[#2e2e2e] rounded-2xl p-10 w-full max-w-md shadow-lg flex flex-col gap-4">
             {/* Introduction */}
             <div className="text-center mb-2">
-                <h1 className="text-2xl font-bold text-white"> Welcome to ResumeManager!</h1>
+                <h1 className="text-2xl font-bold text-white">Welcome to ResumeManager!</h1>
                 <p className="mt-1 text-[#888] italic">
                     {mode === "signup" ? "Please create an account before you continue." : "Welcome back."}
                 </p>
@@ -113,7 +106,6 @@ export default function Auth() {
             </button>
 
             {/* Toggle Between Sign Up/In*/}
-            {/* <p className="text-center text-[#666] text-xs font-sans"> */}
             <p className="text-center mt-1 text-[#888]">
             {mode === "signup" ? "Already have an account? " : "Don't have an account? "}
             <button
