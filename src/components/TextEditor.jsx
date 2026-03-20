@@ -10,6 +10,15 @@ const Size = Quill.import('attributors/style/size');
 Size.whitelist = Array.from({ length: 96 }, (_, i) => `${i + 1}pt`);
 Quill.register(Size, true);
 
+const Parchment = Quill.import('parchment');
+const StyleAttributor = Parchment.StyleAttributor;
+const LineHeightStyle = new StyleAttributor(
+    'lineHeight',
+    'line-height',
+    { scope: Parchment.Scope.BLOCK, whitelist: ['1', '1.15', '1.5', '2', '2.5', '3'] }
+);
+Quill.register(LineHeightStyle, true);
+
 const TextEditor = forwardRef(({defaultValue, onTextChange, onSelectionChange, toolbarRef}, ref) => {
     const containerRef = useRef(null);
     const defaultValueRef = useRef(defaultValue);

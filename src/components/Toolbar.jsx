@@ -6,23 +6,10 @@ import {
     Indent, Outdent,
     Eraser, Undo2, Redo2
 } from 'lucide-react';
-import FontSize from './FontSize';
+import ToolbarButton from './Toolbar/ToolbarButton';
+import FontSize from './Toolbar/FontSize';
+import LineSpacing from './Toolbar/LineSpacing';
 
-function ToolbarButton({ onClick, title, active, children }) {
-    return (
-        <button
-            onClick={onClick}
-            title={title}
-            className={`w-7 h-7 flex items-center justify-center rounded cursor-pointer transition-colors
-                ${active
-                    ? 'bg-gray-200 text-gray-900'
-                    : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
-                }`}
-        >
-            {children}
-        </button>
-    );
-}
 
 function Divider() {
     return <div className="w-px h-5 bg-gray-200 mx-1 self-center" />;
@@ -151,6 +138,8 @@ const Toolbar = forwardRef(({ quillRef, activeFormats, onFormatsChange }, ref) =
             <ToolbarButton onClick={() => format('align', 'justify')} title="Justify" active={activeFormats?.align === 'justify'}>
                 <AlignJustify size={16} />
             </ToolbarButton>
+
+            <LineSpacing quillRef={quillRef} />
 
             <Divider />
 

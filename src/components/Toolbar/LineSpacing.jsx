@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { ListChevronsUpDown } from 'lucide-react';
-import ToolbarButton from '../ToolbarButton';
+import ToolbarButton from './ToolbarButton';
 
 const LINE_SPACING_OPTIONS = [
     { label: 'Single', value: '1' },
