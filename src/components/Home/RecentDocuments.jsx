@@ -2,7 +2,7 @@ import { useNavigate } from "react-router-dom";
 import { useDocuments } from "@/hooks/useDocuments";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { FileText, Paperclip } from "lucide-react";
+import { Paperclip } from "lucide-react";
 
 export const timeAgo = (timestamp) => {
     const diff = Date.now() - new Date(timestamp).getTime();
@@ -35,7 +35,7 @@ export default function RecentDocuments({ user }) {
 
     return (
         <section>
-            <h2 className="text-sm font-medium text-muted-foreground uppercase tracking-wider mb-3">Recently Opened</h2>
+            <h2 className="text-sm font-medium uppercase tracking-wider mb-3">Recently Opened</h2>
 
             {loading ? (
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-3">

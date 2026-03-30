@@ -27,7 +27,7 @@ export default function NewDocuments({ user }) {
     return (
         <>
             <section>
-                <h2 className="text-sm font-medium text-muted-forground uppercase tracking-wider mb-3">Create New</h2>
+                <h2 className="text-sm font-medium uppercase tracking-wider mb-3">Create New</h2>
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                     {options.map((option) => (
                         <Card
