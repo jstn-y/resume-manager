@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/lib/supabase";
 import {
@@ -12,37 +12,29 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { Badge } from "@/components/ui/badge";
-import { Switch } from "@/components/ui/switch";
-import { X } from "lucide-react";
+import TagSelector from "@/components/Shared/TagSelector";
 
 export default function NewDocumentDialog({ open, onClose, user }) {
     const navigate = useNavigate();
 
     const [type, setType] = useState("resume");
     const [title, setTitle] = useState("");
-    const [tagInput, setTagInput] = useState("");
     const [tags, setTags] = useState([]);
-    const [isTemplate, setIsTemplate] = useState(false);
+    const [allTags, setAllTags] = useState([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
 
     const defaultTitle = type === "resume" ? "Untitled Resume" : "Untitled Cover Letter";
 
-    const handleTagKeyDown = (e) => {
-        if (e.key === "Enter" || e.key === ",") {
-            e.preventDefault();
-            const newTag = tagInput.trim();
-            if (newTag && !tags.includes(newTag)) {
-                setTags([...tags, newTag]);
-            }
-            setTagInput("");
-        }
-    };
-
-    const removeTag = (tag) => {
-        setTags(tags.filter((t) => t !== tag));
-    };
+    useEffect(() => {
+        if (!user) return;
+        supabase
+            .from("tags")
+            .select("id, name, color")
+            .eq("user_id", user.id)
+            .order("name", { ascending: true })
+            .then(({ data }) => setAllTags(data || []));
+    }, [user]);
 
     const handleCreate = async () => {
         setLoading(true);
@@ -54,9 +46,9 @@ export default function NewDocumentDialog({ open, onClose, user }) {
                 user_id: user.id,
                 title: title.trim() || defaultTitle,
                 type,
-                is_template: isTemplate,
+                is_template: false,
                 content: "",
-                tags,
+                tags: tags.map((t) => t.id),
             })
             .select("id")
             .single();
@@ -74,8 +66,6 @@ export default function NewDocumentDialog({ open, onClose, user }) {
         setType("resume");
         setTitle("");
         setTags([]);
-        setTagInput("");
-        setIsTemplate(false);
         setError(null);
         onClose();
     };
@@ -124,45 +114,7 @@ export default function NewDocumentDialog({ open, onClose, user }) {
                         />
                     </div>
 
-                    {/* Template toggle */}
-                    <div className="flex items-center justify-between rounded-lg border p-4">
-                        <div>
-                            <p className="text-sm font-medium">Save as Template</p>
-                            <p className="text-xs text-muted-foreground">
-                                Reuse this document as a starting point for future documents.
-                            </p>
-                        </div>
-                        <Switch checked={isTemplate} onCheckedChange={setIsTemplate} />
-                    </div>
-
-                    {/* Tags */}
-                    <div className="space-y-1.5">
-                        <Label htmlFor="doc-tags">Tags</Label>
-                        <Input
-                            id="doc-tags"
-                            placeholder="Type a tag and press Enter"
-                            value={tagInput}
-                            onChange={(e) => setTagInput(e.target.value)}
-                            onKeyDown={handleTagKeyDown}
-                        />
-                        {tags.length > 0 && (
-                            <div className="flex flex-wrap gap-1.5 pt-1">
-                                {tags.map((tag) => (
-                                    <Badge key={tag} variant="secondary" className="gap-1">
-                                        {tag}
-                                        <button
-                                            onClick={() => removeTag(tag)}
-                                            className="hover:text-destructive transition-colors"
-                                        >
-                                            <X className="h-3 w-3" />
-                                        </button>
-                                    </Badge>
-                                ))}
-                            </div>
-                        )}
-                    </div>
-
-                    
+                    <TagSelector user={user} selectedTags={tags} allTags={allTags} onChange={setTags} />
 
                     {error && <p className="text-sm text-destructive">{error}</p>}
                 </div>
