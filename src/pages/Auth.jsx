@@ -1,10 +1,22 @@
 import { useState } from "react";
 import { supabase } from "@/lib/supabase";
-import InputField from "@/components/InputField";
+import { Input } from "@/components/ui/input";  
+import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
+import { 
+    Card,
+    CardContent,
+    CardDescription,
+    CardHeader,
+    CardTitle,
+} from "@/components/ui/card";
+
 
 export default function Auth() {
     const [mode, setMode] = useState("signup");
 
+    const [firstName, setFirstName] = useState("");
+    const [lastName, setLastName] = useState("");
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
 
@@ -18,11 +30,11 @@ export default function Auth() {
         setError(null);
 
         const { error } = await supabase.auth.signInWithOAuth({
-        provider: "google",
-        options: {
-            // add URL later
-            redirectTo: window.location.origin,
-        },
+            provider: "google",
+            options: {
+                // add URL later
+                redirectTo: window.location.origin,
+            },
         });
 
         if (error) setError(error.message);
@@ -36,7 +48,17 @@ export default function Auth() {
         setMessage(null);
 
         if (mode === "signup") {
-            const { error } = await supabase.auth.signUp({ email, password });
+            const { error } = await supabase.auth.signUp({ 
+                email, 
+                password, 
+                options: {
+                    data: {
+                        first_name: firstName.trim(),
+                        last_name: lastName.trim(),
+                        full_name: `${firstName.trim()} ${lastName.trim()}`,
+                    },
+                } 
+            });
             if (error) setError(error.message);
 
         } else {
@@ -47,80 +69,113 @@ export default function Auth() {
         setLoading(false);
     };
 
+    const switchMode = () => {
+        setMode(mode === "signup" ? "signin" : "signup");
+        setFirstName("");
+        setLastName("");
+        setEmail("");
+        setPassword("");
+        setError(null);
+        setMessage(null);
+    };
+
     return (
-        <div className="min-h-screen bg-[#0f0f0f] flex items-center justify-center p-4">
-        <div className="bg-[#1a1a1a] border border-[#2e2e2e] rounded-2xl p-10 w-full max-w-md shadow-lg flex flex-col gap-4">
-            {/* Introduction */}
-            <div className="text-center mb-2">
-                <h1 className="text-2xl font-bold text-white">Welcome to ResumeManager!</h1>
-                <p className="mt-1 text-[#888] italic">
-                    {mode === "signup" ? "Please create an account before you continue." : "Welcome back."}
-                </p>
-            </div>
+        <div className="min-h-screen bg-background flex items-center justify-center p-4">
+            <Card className="w-full max-w-md">
+                <CardHeader className="text-center">
+                    <CardTitle className="text-2xl">Welcome to ResumeManager!</CardTitle>
+                    <CardDescription className="italic">
+                        {mode === "signup"
+                            ? "Please create an account before you continue."
+                            : "Welcome back."}
+                    </CardDescription>
+                </CardHeader>
 
-            {/* Google Sign Up/In Button */}
-            <button
-                onClick={handleGoogleSignIn}
-                disabled={loading}
-                className="flex items-center justify-center gap-2 w-full p-3 bg-[#242424] border border-[#3a3a3a] rounded-lg text-[#e0ddd8] hover:bg-[#333333] transition-colors duration-150"
-            >
-            <GoogleIcon />
-            {mode === "signup" ? "Sign Up with Google" : "Sign In with Google"}
-            </button>
+                <CardContent className="flex flex-col gap-4">
+                    {/* Google Sign In/Up */}
+                    <Button variant="outline" onClick={handleGoogleSignIn} disabled={loading} className="w-full gap-2">
+                        <GoogleIcon />
+                        {mode === "signup" ? "Sign Up with Google" : "Sign In with Google"}
+                    </Button>
 
-            {/* Divider */}
-            <div className="flex items-center gap-3 m-1">
-                <div className="flex-1 h-px bg-[#2e2e2e]" />
-                <span className="text-[#666] text-xs font-sans">or</span>
-                <div className="flex-1 h-px bg-[#2e2e2e]" />
-            </div>
+                    {/* Divider */}
+                    <div className="flex items-center gap-3">
+                        <div className="flex-1 h-px bg-border" />
+                        <span className="text-muted-foreground text-xs">or</span>
+                        <div className="flex-1 h-px bg-border" />
+                    </div>
 
-            {/* Email & Password Fields */}
-            <InputField 
-                label="Email" 
-                type="email" 
-                placeholder="your.email@example.com" 
-                value={email} 
-                onChange={(e) => setEmail(e.target.value)} 
-            />
+                    {/* First & Last Name — signup only */}
+                    {mode === "signup" && (
+                        <div className="flex gap-3">
+                            <div className="flex flex-col gap-1.5 flex-1">
+                                <Label htmlFor="firstName">First Name</Label>
+                                <Input
+                                    id="firstName"
+                                    type="text"
+                                    placeholder="Jane"
+                                    value={firstName}
+                                    onChange={(e) => setFirstName(e.target.value)}
+                                />
+                            </div>
+                            <div className="flex flex-col gap-1.5 flex-1">
+                                <Label htmlFor="lastName">Last Name</Label>
+                                <Input
+                                    id="lastName"
+                                    type="text"
+                                    placeholder="Smith"
+                                    value={lastName}
+                                    onChange={(e) => setLastName(e.target.value)}
+                                />
+                            </div>
+                        </div>
+                    )}
 
-            <InputField 
-                label="Password" 
-                type="password" 
-                placeholder={mode === "signup" ? "At least 8 characters" : "••••••••"} 
-                value={password} 
-                onChange={(e) => setPassword(e.target.value)} 
-            />
+                    {/* Email */}
+                    <div className="flex flex-col gap-1.5">
+                        <Label htmlFor="email">Email</Label>
+                        <Input
+                            id="email"
+                            type="email"
+                            placeholder="your.email@example.com"
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
+                        />
+                    </div>
 
-            {/* Error & Success Messages */}
-            {error && <p className="text-[#e07070] text-xs font-sans">{error}</p>}
-            {message && <p className="text-[#70c97e] text-xs font-sans">{message}</p>}
+                    {/* Password */}
+                    <div className="flex flex-col gap-1.5">
+                        <Label htmlFor="password">Password</Label>
+                        <Input
+                            id="password"
+                            type="password"
+                            placeholder={mode === "signup" ? "At least 8 characters" : "••••••••"}
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
+                        />
+                    </div>
 
-            {/* Submit Button */}
-            <button
-                onClick={handleEmailAuth}
-                disabled={loading}
-                className="w-full p-3 bg-[#c8a96e] rounded-lg text-[#0f0f0f] font-bold hover:bg-[#b5965a] transition-colors duration-150"
-            >
-            {loading ? "Loading..." : mode === "signup" ? "Create Account" : "Sign In"}
-            </button>
+                    {/* Error & Success Messages */}
+                    {error && <p className="text-destructive text-xs">{error}</p>}
+                    {message && <p className="text-green-500 text-xs">{message}</p>}
 
-            {/* Toggle Between Sign Up/In*/}
-            <p className="text-center mt-1 text-[#888]">
-            {mode === "signup" ? "Already have an account? " : "Don't have an account? "}
-            <button
-                onClick={() => {
-                    setMode(mode === "signup" ? "signin" : "signup");
-                    setError(null);
-                    setMessage(null);
-                }}
+                    {/* Submit */}
+                    <Button onClick={handleEmailAuth} disabled={loading} className="w-full">
+                        {loading ? "Loading..." : mode === "signup" ? "Create Account" : "Sign In"}
+                    </Button>
 
-                className="text-[#c8a96e] hover:underline font-medium bg-transparent border-none p-0 cursor-pointer"
-            >
-                {mode === "signin" ? "Sign up" : "Sign in"}
-            </button>
-            </p>
-        </div>
+                    {/* Toggle */}
+                    <p className="text-center text-sm text-muted-foreground">
+                        {mode === "signup" ? "Already have an account? " : "Don't have an account? "}
+                        <button
+                            onClick={switchMode}
+                            className="text-primary hover:underline font-medium bg-transparent border-none p-0 cursor-pointer"
+                        >
+                            {mode === "signin" ? "Sign up" : "Sign in"}
+                        </button>
+                    </p>
+                </CardContent>
+            </Card>
         </div>
     );
 }
